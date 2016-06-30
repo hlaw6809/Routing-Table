@@ -62,6 +62,13 @@ public class RouterMain {
             System.out.println("Route Added: " + randRoute.toString());
             System.out.println(table.toString());
         }
+
+        //Test best route search for an IP
+        table.addRoute(new Route("255.255.255.0/16", 1, true));
+        String testIP = "255.255.255.111";
+        System.out.println("Searching for best route for " + testIP);
+        Route best = table.findBestRoute(testIP);
+        System.out.println("Best Route for " + testIP + ": " + best.toString());
     }
 
 }

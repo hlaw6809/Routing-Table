@@ -38,13 +38,18 @@ public class RoutingTable {
         for (int i = 0; i < table.size(); i++) {
             Route route = table.get(i);
             if (route.getPortNumber() == portNum && route.getDestAddress().equals(destAddr)) {
-                route.setDestCost(cost);
+                if (cost == -1) {
+                    route.setActiveFlag(false);
+                } else {
+                    route.setDestCost(cost);
+                    route.setActiveFlag(true);
+                }
                 route.setTimeStamp(new Date());
             }
         }
 
         //If no route found create new one
-        if (!routeFound) {
+        if (!routeFound && cost != -1) {
             table.add(new Route(destAddr, portNum, true));
         }
 
@@ -69,6 +74,50 @@ public class RoutingTable {
         //To be implemented
     }
 
+
+    public Route findBestRoute(String address) {
+        Route bestRoute = null;
+        for (Route route : table) {
+            if (route.isActiveFlag() && compareAddress(address, route.getDestAddress())) {
+                System.out.println("    Route Found: " + route.toString());
+                if (bestRoute == null || getMaskSize(route.getDestAddress()) < getMaskSize(bestRoute.getDestAddress())) {
+                    bestRoute = route;
+                }
+            }
+        }
+        return bestRoute;
+    }
+
+
+    private boolean compareAddress(String destAddress, String routeAddress) {
+        int maskSize = getMaskSize(routeAddress);
+        int routeIP = getIPInt(routeAddress);
+        int destIP = getIPInt(destAddress);
+        int bitMask = 0x80000000;
+        for (int i = 0; i < maskSize; i++) {
+            if ((destIP & bitMask) != (routeIP & bitMask)) {
+                return false;
+            }
+            bitMask = bitMask >> 1;
+        }
+        return true;
+    }
+
+
+    private int getIPInt(String address) {
+        String[] addrInfo = address.split("/");
+        String[] ipStrings = addrInfo[0].split("\\.", 4);
+        int ip =  (Integer.parseInt(ipStrings[0]) << 24)
+                + (Integer.parseInt(ipStrings[1]) << 16)
+                + (Integer.parseInt(ipStrings[2]) << 8)
+                + Integer.parseInt(ipStrings[3]);
+        return ip;
+    }
+
+    private int getMaskSize(String address) {
+        String[] addrInfo = address.split("/");
+        return Integer.parseInt(addrInfo[1]);
+    }
 
     @Override
     public String toString() {
