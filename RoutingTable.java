@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by hlawr_000 on 6/29/2016.
- */
+
 public class RoutingTable {
 
     private static List<Route> table;
@@ -25,19 +23,22 @@ public class RoutingTable {
         update();
     }
 
+    public List<Route> getRouteList() {
+        return table;
+    }
+
 
     /**
      * This method is used to simulate an update of a route on a nearby router.
-     * @param portNum   Port number the updated router is on
-     * @param destAddr  Destination Address that was updated
+     * @param seqNum    Sequence number of the route to modify
      * @param cost      New cost of the route. -1 will set the route inactive
      */
-    public void updateRoute(int portNum, String destAddr, int cost) {
+    public void updateRoute(int seqNum, int cost) {
         //Find route with destination address
         boolean routeFound = false;
         for (int i = 0; i < table.size(); i++) {
             Route route = table.get(i);
-            if (route.getPortNumber() == portNum && route.getDestAddress().equals(destAddr)) {
+            if (route.getSeqNumber() == seqNum) {
                 if (cost == -1) {
                     route.setActiveFlag(false);
                 } else {
@@ -46,11 +47,6 @@ public class RoutingTable {
                 }
                 route.setTimeStamp(new Date());
             }
-        }
-
-        //If no route found create new one
-        if (!routeFound && cost != -1) {
-            table.add(new Route(destAddr, portNum, true));
         }
 
         //Update route table now that it has new information
@@ -118,6 +114,7 @@ public class RoutingTable {
         String[] addrInfo = address.split("/");
         return Integer.parseInt(addrInfo[1]);
     }
+
 
     @Override
     public String toString() {

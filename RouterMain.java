@@ -1,14 +1,15 @@
 package router;
 
+import java.util.List;
 import java.util.Random;
 
 public class RouterMain {
-    private static final int ADD_WAIT = 2000;           //Time to wait in ms
-    private static final int INITIAL_TABLE_SIZE = 10;   //Initial size of routing table
+    private static final int ADD_WAIT = 200;           //Time to wait in ms
+    private static final int INITIAL_TABLE_SIZE = 5;   //Initial size of routing table
     private static final int MAX_MASK_SIZE = 24;        //Maximum size of address mask
     private static final int MIN_MASK_SIZE = 12;        //Minimum size of address mask
     private static final int NUM_PORTS = 16;            //Number of ports on the router
-    private static final int ADD_LOOPS = 10;            //Number of times to add a route to the table
+    private static final int ADD_LOOPS = 6;            //Number of times to add a route to the table
 
     private static RoutingTable table;
 
@@ -52,6 +53,15 @@ public class RouterMain {
                 Thread.sleep(ADD_WAIT);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+
+            //If third add set random route inactive
+            if (i % 3 == 2) {
+                Random rand = new Random();
+                List<Route> routes = table.getRouteList();
+                int index = Math.abs(rand.nextInt() % routes.size());
+                table.updateRoute(routes.get(index).getSeqNumber(), -1);
+                System.out.println("Route set Innactive: " + routes.get(index).toString());
             }
 
             //Add new Route
